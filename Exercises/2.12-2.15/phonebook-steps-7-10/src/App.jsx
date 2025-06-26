@@ -39,7 +39,36 @@ const App = () => {
     }
 
     if(persons.find(p => p.name === name)) {
-      alert(`${name} is already added to phonebook`)
+      const addAnyway = confirm(`${name} is already added to phonebook. Replace the old number with a new one?`);
+      console.log('addAnyway', addAnyway);
+      switch (addAnyway) {
+        case true:
+          console.log(`Replacing number for ${name}`);
+          const personToUpdate = persons.find(p => p.name === name);
+          console.log('personToUpdate', personToUpdate);
+          axios.put(API_PERSONS_URL + "/" + personToUpdate.id, { name, number: document.getElementById('number').value })
+            .then(response => {
+              console.log('response', response);
+              console.log('response.data', response.data);
+              setPersons(persons.map(p => p.id === personToUpdate.id ? { ...p, number: document.getElementById('number').value } : p));
+            })
+            .catch(error => {
+              console.error('Error updating person:', error);
+              alert('Failed to update person. Please try again later.');
+            });
+          break;
+        case false:
+          console.log(`Not replacing number for ${name}`);
+          alert(`${name} not replaced`);
+          document.getElementById('name').value = '';
+          document.getElementById('number').value = '';
+          return;
+        default:
+          return;
+      }
+    } else if (!document.getElementById('number').value || document.getElementById('number').value.length === 0) {
+      alert('Number cannot be empty');
+      document.getElementById('number').focus();
       return
     } else {
       axios.post(API_PERSONS_URL, { name, number: document.getElementById('number').value })
