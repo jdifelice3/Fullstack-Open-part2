@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import {Person, PersonList} from './components/Person.jsx';
 import axios from 'axios';
 
+const urlPersons = 'http://localhost:3001/persons';
+
 const App = () => {
   const [persons, setPersons] = useState([
     { name: 'Arto Hellas', number: '040-123456' },
@@ -13,7 +15,7 @@ const App = () => {
   useEffect(() => {
     console.log('useEffect called');
     axios
-      .get('http://localhost:3001/persons')
+      .get(urlPersons)
       .then(response => {
         console.log('promise fulfilled');
         setPersons(response.data);
@@ -40,8 +42,16 @@ const App = () => {
       alert(`${name} is already added to phonebook`)
       return
     } else {
-      setPersons(persons.concat({ name, number: document.getElementById('number').value }));
-      setNewName(name);
+      axios.post(urlPersons, { name, number: document.getElementById('number').value })
+        .then(response => {
+          console.log('response', response);
+          console.log('response.data', response.data);
+          setPersons(persons.concat({ name, number: document.getElementById('number').value }));
+        })
+        .catch(error => {
+          console.error('Error adding person:', error);
+          alert('Failed to add person. Please try again later.');
+        }); 
     }
   }
 
