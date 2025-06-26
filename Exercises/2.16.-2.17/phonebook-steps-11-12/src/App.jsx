@@ -1,26 +1,30 @@
 import { useEffect, useState, useCallback } from 'react';
-import {Person, PersonList} from './components/Person.jsx';
+import {PersonList} from './components/Person.jsx';
 import axios from 'axios';
-
-const API_PERSONS_URL = 'http://localhost:3001/persons';
+import config from './config/constants.js';
+import './App.css';
 
 const App = () => {
+  console.log('API_PERSONS_URL', config.API_PERSONS_URL);
   const [persons, setPersons] = useState([
     { name: 'Arto Hellas', number: '040-123456' },
   ]) 
-  const [newName, setNewName] = useState('')
-  const [filteredPersons, setFilteredPersons] = useState([])
+  const [newName, setNewName] = useState('');
+  const [filteredPersons, setFilteredPersons] = useState([]);
   const [noSearchResults, setNoSearchResults] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     console.log('useEffect called');
     axios
-      .get(API_PERSONS_URL)
+      .get(config.API_PERSONS_URL)
       .then(response => {
         console.log('promise fulfilled');
         setPersons(response.data);
       })
       .catch(error => {
+        showErrorMessage('Failed to fetch data from server. Please try again later.');
         console.error('Error fetching data:', error);
       });
   }, []);
@@ -46,22 +50,21 @@ const App = () => {
           console.log(`Replacing number for ${name}`);
           const personToUpdate = persons.find(p => p.name === name);
           console.log('personToUpdate', personToUpdate);
-          axios.put(API_PERSONS_URL + "/" + personToUpdate.id, { name, number: document.getElementById('number').value })
+          axios.put(config.API_PERSONS_URL + "/" + personToUpdate.id, { name, number: document.getElementById('number').value })
             .then(response => {
               console.log('response', response);
               console.log('response.data', response.data);
               setPersons(persons.map(p => p.id === personToUpdate.id ? { ...p, number: document.getElementById('number').value } : p));
+              showSuccessMessage(`Updated ${name}'s number successfully!`);
             })
             .catch(error => {
               console.error('Error updating person:', error);
-              alert('Failed to update person. Please try again later.');
+              showErrorMessage(`Failed to update ${name}. Please try again later.`);
             });
           break;
         case false:
           console.log(`Not replacing number for ${name}`);
-          alert(`${name} not replaced`);
-          document.getElementById('name').value = '';
-          document.getElementById('number').value = '';
+          showErrorMessage(`${name} not replaced`);
           return;
         default:
           return;
@@ -71,32 +74,35 @@ const App = () => {
       document.getElementById('number').focus();
       return
     } else {
-      axios.post(API_PERSONS_URL, { name, number: document.getElementById('number').value })
+      axios.post(config.API_PERSONS_URL, { name, number: document.getElementById('number').value })
         .then(response => {
           console.log('response', response);
           console.log('response.data', response.data);
           setPersons(persons.concat({ name, number: document.getElementById('number').value }));
+          showSuccessMessage(`Added ${name} successfully!`);
+          setFilteredPersons([]);
+          setNoSearchResults(false);
         })
         .catch(error => {
           console.error('Error adding person:', error);
-          alert('Failed to add person. Please try again later.');
+          showErrorMessage(`Failed to add  ${name}. Please try again later.`);
+          setFilteredPersons([]);
+          setNoSearchResults(false);
         }); 
     }
   }
 
   const handleRemovePerson = useCallback((personId, personName) => {
     console.log('In deleteOnClick');    
-    //const personName = event.target.parentNode.querySelector('.person-item span').textContent.split(' ')[0];
     console.log('personName', personName);  
     //Getting person id
-    //const personId = event.target.parentNode.querySelector('.person-item span').id;//textContent.split(' ')[1];
     console.log('personId', personId);
     const userInput = confirm(`Delete ${personName}?`)
     console.log('userInput', userInput);
 
     if (userInput) {
       console.log(`Deleting person: ${personName}`);
-      axios.delete(API_PERSONS_URL + "/" + personId)
+      axios.delete(config.API_PERSONS_URL + "/" + personId)
       .then(response => {
         console.log('response', response);
         persons.splice(personId, 1);
@@ -104,6 +110,8 @@ const App = () => {
       })
       .catch(error => {
         console.error('Error deleting person:', error); 
+        showErrorMessage(`Failed to delete ${personName}. Please try again later.`);
+        console.error('Error deleting person:', error);
         alert('Failed to delete person. Please try again later.');
       });
     } else {
@@ -133,9 +141,30 @@ const App = () => {
     setFilteredPersons(filteredPersons);
   }
 
+  const showSuccessMessage = (message) => {
+    setSuccessMessage(message);
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 5000);
+    document.getElementById('name').value = '';
+    document.getElementById('number').value = '';
+  } 
+
+  const showErrorMessage = (message) => {
+    setErrorMessage(message);
+    setTimeout(() => {
+      setErrorMessage(null);
+    }, 5000);
+    document.getElementById('name').value = '';
+    document.getElementById('number').value = '';
+  } 
+
   return (
     <div>
       <h1>Phonebook</h1>
+      <NotificationSuccess message={successMessage}/>
+      <NotificationError message={errorMessage}/>
+
       <div>filter shown with <input id="filter" onChange={filterOnChange}/></div>
       
       <div><h2>add a new</h2></div>
@@ -146,6 +175,30 @@ const App = () => {
       </form>
       <h2>Numbers</h2>
       <PersonList persons={persons} filteredPersons={filteredPersons} noSearchResults={noSearchResults} onRemove={handleRemovePerson}/>
+    </div>
+  )
+}
+
+const NotificationSuccess = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className={'success-message'}>
+      {message}
+    </div>
+  )
+}
+
+const NotificationError = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className={'error-message'}>
+      {message}
     </div>
   )
 }

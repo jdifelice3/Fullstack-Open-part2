@@ -67,12 +67,3 @@ button:focus-visible {
   }
 }
 
-.container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.person-item {
-  margin-right: 10px;
-}

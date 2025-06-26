@@ -1,5 +1,4 @@
-import axios from "axios";
-const API_PERSONS_URL = 'http://localhost:3001/persons';
+import '../App.css';
 
 export const Person = ({ person }) => {
   return (
