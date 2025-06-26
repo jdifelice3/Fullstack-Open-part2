@@ -66,3 +66,13 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.person-item {
+  margin-right: 10px;
+}

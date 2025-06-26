@@ -1,12 +1,15 @@
+import axios from "axios";
+const API_PERSONS_URL = 'http://localhost:3001/persons';
+
 export const Person = ({ person }) => {
   return (
-    <div>
+    <span id={person.id}>
       {person.name} {person.number}
-    </div>
+    </span>
   )
 }
 
-export const PersonList = ({ persons, filteredPersons, noSearchResults }) => {
+export const PersonList = ({ persons, filteredPersons, noSearchResults, onRemove }) => {
   console.log('PersonList persons', persons);
   if (noSearchResults) {
     return <div>No search results found</div>
@@ -15,15 +18,17 @@ export const PersonList = ({ persons, filteredPersons, noSearchResults }) => {
   let personsToShow = []
   if (!filteredPersons || filteredPersons.length === 0) {
       personsToShow = persons;
-    } else {
+  } else {
       personsToShow = filteredPersons;
-    }
+  }
   
   return (
-    <div>
+    <div className="container">
       {personsToShow.map((person, index) => (
-        <Person key={index} person={person} />
-      ))} 
-    </div>
+        <div className="person-item" key={index}>
+          <Person key={index} person={person} /><button onClick={() => onRemove(person.id, person.name)}>delete</button>
+        </div>
+      ))}   
+      </div>
   )
 }

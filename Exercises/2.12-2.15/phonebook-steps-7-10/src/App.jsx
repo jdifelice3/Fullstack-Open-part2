@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {Person, PersonList} from './components/Person.jsx';
 import axios from 'axios';
 
-const urlPersons = 'http://localhost:3001/persons';
+const API_PERSONS_URL = 'http://localhost:3001/persons';
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -15,7 +15,7 @@ const App = () => {
   useEffect(() => {
     console.log('useEffect called');
     axios
-      .get(urlPersons)
+      .get(API_PERSONS_URL)
       .then(response => {
         console.log('promise fulfilled');
         setPersons(response.data);
@@ -42,7 +42,7 @@ const App = () => {
       alert(`${name} is already added to phonebook`)
       return
     } else {
-      axios.post(urlPersons, { name, number: document.getElementById('number').value })
+      axios.post(API_PERSONS_URL, { name, number: document.getElementById('number').value })
         .then(response => {
           console.log('response', response);
           console.log('response.data', response.data);
@@ -54,6 +54,34 @@ const App = () => {
         }); 
     }
   }
+
+  const handleRemovePerson = useCallback((personId, personName) => {
+    console.log('In deleteOnClick');    
+    //const personName = event.target.parentNode.querySelector('.person-item span').textContent.split(' ')[0];
+    console.log('personName', personName);  
+    //Getting person id
+    //const personId = event.target.parentNode.querySelector('.person-item span').id;//textContent.split(' ')[1];
+    console.log('personId', personId);
+    const userInput = confirm(`Delete ${personName}?`)
+    console.log('userInput', userInput);
+
+    if (userInput) {
+      console.log(`Deleting person: ${personName}`);
+      axios.delete(API_PERSONS_URL + "/" + personId)
+      .then(response => {
+        console.log('response', response);
+        persons.splice(personId, 1);
+        setPersons((prevPersons) => prevPersons.filter(person => person.id !== personId));
+      })
+      .catch(error => {
+        console.error('Error deleting person:', error); 
+        alert('Failed to delete person. Please try again later.');
+      });
+    } else {
+      console.log(`Deletion of person: ${personName} cancelled`);
+      return;
+    }
+  }, []);
 
   const filterOnChange = (event) => {
     console.log('In filterOnChange');
@@ -88,7 +116,7 @@ const App = () => {
         <div><button type="submit" onClick={submitOnClick}>add</button></div>
       </form>
       <h2>Numbers</h2>
-      <PersonList persons={persons} filteredPersons={filteredPersons} noSearchResults={noSearchResults} />
+      <PersonList persons={persons} filteredPersons={filteredPersons} noSearchResults={noSearchResults} onRemove={handleRemovePerson}/>
     </div>
   )
 }
