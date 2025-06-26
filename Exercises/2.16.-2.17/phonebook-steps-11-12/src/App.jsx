@@ -5,14 +5,12 @@ import axios from 'axios';
 const API_PERSONS_URL = 'http://localhost:3001/persons';
 
 const App = () => {
-  console.log('API_PERSONS_URL', API_PERSONS_URL);
   const [persons, setPersons] = useState([
     { name: 'Arto Hellas', number: '040-123456' },
   ]) 
-  const [newName, setNewName] = useState('');
-  const [filteredPersons, setFilteredPersons] = useState([]);
+  const [newName, setNewName] = useState('')
+  const [filteredPersons, setFilteredPersons] = useState([])
   const [noSearchResults, setNoSearchResults] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     console.log('useEffect called');
@@ -88,8 +86,10 @@ const App = () => {
 
   const handleRemovePerson = useCallback((personId, personName) => {
     console.log('In deleteOnClick');    
+    //const personName = event.target.parentNode.querySelector('.person-item span').textContent.split(' ')[0];
     console.log('personName', personName);  
     //Getting person id
+    //const personId = event.target.parentNode.querySelector('.person-item span').id;//textContent.split(' ')[1];
     console.log('personId', personId);
     const userInput = confirm(`Delete ${personName}?`)
     console.log('userInput', userInput);
