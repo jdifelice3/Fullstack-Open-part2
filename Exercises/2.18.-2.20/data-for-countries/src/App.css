@@ -1,0 +1,53 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: left;
+}
+
+.container {
+  display: grid;
+  flex-direction: row;
+  align-items: left;
+}
+
+.person-item {
+  margin-right: 10px;
+}
+
+.success-message {
+  color: green;
+  background: lightgrey;
+  font-size: 20px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.error-message {
+  color: red;
+  background: lightgrey;
+  font-size: 20px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.message {
+  color: black;
+  background: lightgrey;
+  font-size: 14px;
+  border-style: solid;
+  border-radius: 2px;
+  padding: 5px;
+  margin-bottom: 5px;
+}
